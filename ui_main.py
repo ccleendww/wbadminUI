@@ -10,36 +10,36 @@ class BackupUI(QWidget):
         
         layout = QVBoxLayout()
 
-        # 1. 管理员状态
-        self.admin_label = QLabel("管理员权限检查中...")
+        # 1. Admin Status
+        self.admin_label = QLabel("Checking admin privileges...")
         layout.addWidget(self.admin_label)
 
-        # 2. 源盘选择
+        # 2. Source Drive Selection
         source_layout = QHBoxLayout()
-        self.source_label = QLabel("源盘: 未选择")
-        self.source_btn = QPushButton("选择源盘")
+        self.source_label = QLabel("Source Drive: Not Selected")
+        self.source_btn = QPushButton("Select Source Drive")
         source_layout.addWidget(self.source_label)
         source_layout.addStretch()
         source_layout.addWidget(self.source_btn)
         layout.addLayout(source_layout)
 
-        # 3. 目标盘选择
+        # 3. Target Drive Selection
         target_layout = QHBoxLayout()
-        self.target_label = QLabel("目标盘: 未选择")
-        self.target_btn = QPushButton("选择目标盘")
+        self.target_label = QLabel("Target Drive: Not Selected")
+        self.target_btn = QPushButton("Select Target Drive")
         target_layout.addWidget(self.target_label)
         target_layout.addStretch()
         target_layout.addWidget(self.target_btn)
         layout.addLayout(target_layout)
 
-        # 4. 历史版本
-        layout.addWidget(QLabel("已有备份版本:"))
+        # 4. Existing Backups
+        layout.addWidget(QLabel("Existing Backups:"))
         self.version_list = QListWidget()
         layout.addWidget(self.version_list)
 
-        # 5. 进度与日志
+        # 5. Progress and Logs
         self.progress_bar = QProgressBar()
-        self.progress_bar.setRange(0, 0) # 忙碌状态
+        self.progress_bar.setRange(0, 0) # Busy state
         self.progress_bar.hide()
         layout.addWidget(self.progress_bar)
 
@@ -47,8 +47,8 @@ class BackupUI(QWidget):
         self.log_area.setReadOnly(True)
         layout.addWidget(self.log_area)
 
-        # 6. 操作按钮
-        self.start_btn = QPushButton("开始全盘热备份")
+        # 6. Action Buttons
+        self.start_btn = QPushButton("Start Full Disk Backup")
         layout.addWidget(self.start_btn)
 
         self.setLayout(layout)

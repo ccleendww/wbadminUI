@@ -13,41 +13,41 @@ class MainApp(BackupUI):
         
         self.check_admin()
         
-        # 绑定 UI 事件
+        # Bind UI events
         self.source_btn.clicked.connect(self.select_source_drive)
         self.target_btn.clicked.connect(self.select_target_drive)
         self.start_btn.clicked.connect(self.start_backup)
         
     def check_admin(self):
         if AdminUtils.is_admin():
-            self.admin_label.setText("✅ 已获得管理员权限")
+            self.admin_label.setText("✅ Admin privileges obtained")
             self.admin_label.setStyleSheet("color: green")
         else:
-            self.admin_label.setText("❌ 缺少管理员权限，功能可能受限")
+            self.admin_label.setText("❌ Admin privileges required")
             self.admin_label.setStyleSheet("color: red")
 
     def select_source_drive(self):
-        """打开源盘选择对话框"""
+        """Open source drive selection dialog"""
         dialog = DriveSelectDialog(self, exclude_drive=self.target_drive)
         if dialog.exec():
             self.source_drive = dialog.selected_drive
-            self.source_label.setText(f"源盘: {self.source_drive}")
+            self.source_label.setText(f"Source Drive: {self.source_drive}")
             self.source_label.setStyleSheet("color: blue")
-            # 刷新版本列表
+            # Refresh version list
             self.update_version_list()
 
     def select_target_drive(self):
-        """打开目标盘选择对话框"""
+        """Open target drive selection dialog"""
         dialog = DriveSelectDialog(self, exclude_drive=self.source_drive)
         if dialog.exec():
             self.target_drive = dialog.selected_drive
-            self.target_label.setText(f"目标盘: {self.target_drive}")
+            self.target_label.setText(f"Target Drive: {self.target_drive}")
             self.target_label.setStyleSheet("color: blue")
-            # 刷新版本列表
+            # Refresh version list
             self.update_version_list()
 
     def update_version_list(self):
-        """刷新版本列表"""
+        """Refresh version list"""
         if self.target_drive:
             versions = get_backup_versions(self.target_drive)
             self.version_list.clear()
@@ -55,43 +55,43 @@ class MainApp(BackupUI):
 
     def start_backup(self):
         if not self.source_drive or not self.target_drive:
-            QMessageBox.warning(self, "错误", "请先选择源盘和目标盘")
+            QMessageBox.warning(self, "Error", "Please select both source and target drives")
             return
 
-        # 执行备份前验证
+        # Pre-backup validation
         self.log_area.clear()
-        self.log_area.append(">>> 执行备份前检查...\n")
+        self.log_area.append(">>> Running pre-backup checks...\n")
         
         all_passed, messages = DriveValidator.validate_backup(self.source_drive, self.target_drive)
         
-        # 显示所有检查消息
+        # Display all check messages
         for msg in messages:
             self.log_area.append(msg)
         
         self.log_area.append("")
         
         if not all_passed:
-            self.log_area.append("✗ 备份前检查失败，请解决上述问题后重试")
-            QMessageBox.critical(self, "备份检查失败", 
-                               "备份前检查发现以下问题：\n\n" + "\n".join(messages))
+            self.log_area.append("✗ Pre-backup checks failed. Please resolve the issues above and try again.")
+            QMessageBox.critical(self, "Backup Check Failed", 
+                               "Pre-backup checks found the following issues:\n\n" + "\n".join(messages))
             return
 
-        # 对于USB可移动介质的警告，需要特殊处理
+        # Special handling for USB removable media warning
         drive_type = DriveValidator.get_drive_type(self.target_drive)
         if drive_type == "Removable":
-            reply = QMessageBox.warning(self, "高危警告", 
-                                       "目标盘是 USB 可移动介质，wbadmin 对其支持极差。\n\n是否继续？",
+            reply = QMessageBox.warning(self, "High Risk Warning", 
+                                       "Target drive is USB removable media. wbadmin has poor support for it.\n\nContinue?",
                                        QMessageBox.Yes | QMessageBox.No)
             if reply == QMessageBox.No:
-                self.log_area.append("✗ 用户取消备份")
+                self.log_area.append("✗ User cancelled backup")
                 return
 
-        # 所有检查通过，开始备份
+        # All checks passed, start backup
         self.start_btn.setEnabled(False)
         self.progress_bar.show()
-        self.log_area.append("✓ 所有检查通过，准备启动 VSS 卷影复制备份...\n")
+        self.log_area.append("✓ All checks passed. Starting VSS snapshot backup...\n")
 
-        # 创建并启动后台线程
+        # Create and start background thread
         self.worker = BackupWorker(self.target_drive, self.source_drive)
         self.worker.output_signal.connect(self.update_log)
         self.worker.finished_signal.connect(self.on_finished)
@@ -104,11 +104,11 @@ class MainApp(BackupUI):
         self.progress_bar.hide()
         self.start_btn.setEnabled(True)
         if code == 0:
-            self.log_area.append("\n✓ 系统映像备份已完成")
-            QMessageBox.information(self, "成功", "系统映像备份已完成")
+            self.log_area.append("\n✓ System image backup completed")
+            QMessageBox.information(self, "Success", "System image backup completed")
         else:
-            self.log_area.append(f"\n✗ 备份中止，错误代码: {code}")
-            QMessageBox.critical(self, "失败", f"备份中止，错误代码: {code}")
+            self.log_area.append(f"\n✗ Backup aborted. Error code: {code}")
+            QMessageBox.critical(self, "Failed", f"Backup aborted. Error code: {code}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
