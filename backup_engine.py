@@ -18,16 +18,17 @@ class BackupWorker(QThread):
     output_signal = Signal(str)    # 传递实时日志
     finished_signal = Signal(int)  # 传递退出码
 
-    def __init__(self, target_path, source_drive="C:"):
+    def __init__(self, target_drive, source_drive):
         super().__init__()
-        self.target_path = target_path
-        self.source_drive = source_drive
+        # 确保盘符格式正确（如 C: 或 C:\\）
+        self.target_drive = target_drive.rstrip(':') + ':' if target_drive else None
+        self.source_drive = source_drive.rstrip(':') + ':' if source_drive else None
 
     def run(self):
         # 实际调用的指令
         cmd = [
             "wbadmin", "start", "backup",
-            f"-backupTarget:{self.target_path}",
+            f"-backupTarget:{self.target_drive}",
             f"-include:{self.source_drive}",
             "-allCritical", "-quiet"
         ]
