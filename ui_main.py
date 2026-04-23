@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
                              QLineEdit, QTextEdit, QLabel, QProgressBar, QListWidget, QFileDialog)
 
+
 class BackupUI(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Yoga 14s 自动备份系统")
+        self.setWindowTitle("wbadminUI")
         self.resize(600, 500)
         
         layout = QVBoxLayout()
